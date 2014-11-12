@@ -4,16 +4,23 @@
 #include <semaphore.h>
 
 sem_t sem_a;
+sem_t wait1, wait2;
 
 void* testRoutine(void* p)
 {
-  int v;int w;
-  v = (*(int*)p)*100; 
+  int q;q = *(int*)p; 
+  printf("q = %d\n",q);
+  if(q==10){
+    printf("inside wait1\n"); 
+    sem_wait(&wait1);
+  }else{
+    printf("inside wait2\n");
+    sem_wait(&wait2);
+  }
+  
   int i;
-  sem_getvalue(&sem_a,&w);
-  w = w*100;
-  for(i=0;i<=w;i++){
-    printf("inside testRoutine %d %d %d\n",v++,i,w);  
+  for(i=0;i<=q;i++){
+    printf("inside testRoutine q=%d i=%d\n",q,i); 
   }
   int* ptr;
   pthread_exit(&ptr);
@@ -24,38 +31,26 @@ int main()
   int i,j;
   int r;
   
-  r = sem_init(&sem_a,0,0);
-  printf("r = %d\n",r);
+  r = sem_init(&wait1,0,0);
+  r = sem_init(&wait2,0,0);
   
   static pthread_t thread1;
   static pthread_t thread2;
-  i = 1; j = 2;
-  sem_post(&sem_a);
+  i = 10; j = 20;
+
   r = pthread_create(&thread1,NULL,&testRoutine,&i);
-  sem_post(&sem_a);
   r = pthread_create(&thread2,NULL,&testRoutine,&j);
   
-  pthread_join(thread1, NULL);
-  pthread_join(thread2, NULL);
+  //pthread_join(thread1, NULL);
+  //pthread_join(thread2, NULL);
   
-  sem_destroy(&sem_a);
-  exit(0);
+  sem_post(&wait1);
+  printf("sem_post wait1\n");
+  //sem_post(&wait2);
   
-  //printf("Result = %d\n",r);
-/*
-    pthread_exit(value_ptr);
-    perror("pthread_create");
-    exit(0);
-*/
-
-/*
-  int k; int v;
-  for(k=0;k<=10;k++){
-    
-    sem_getvalue(&sem_a,&v);
-    printf("inside main %d %d\n",k,v);  
-  }
-*/
+  //sem_destroy(&sem_a);
+  //sem_destroy(&wait1);sem_destroy(&wait2);
+  //exit(0);
 }
 
 
