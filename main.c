@@ -10,6 +10,7 @@ void* testRoutine(void* p)
 {
   int q;q = *(int*)p; 
   printf("q = %d\n",q);
+  while(1){
   if(q==10){
     printf("inside wait1\n"); 
     sem_wait(&wait1);
@@ -22,8 +23,9 @@ void* testRoutine(void* p)
   for(i=0;i<=q;i++){
     printf("inside testRoutine q=%d i=%d\n",q,i); 
   }
-  int* ptr;
-  pthread_exit(&ptr);
+  }
+  //int* ptr;
+  //pthread_exit(&ptr);
 }
 
 int main()
@@ -31,6 +33,7 @@ int main()
   int i,j;
   int r;
   
+  r = sem_init(&sem_a,0,0);
   r = sem_init(&wait1,0,0);
   r = sem_init(&wait2,0,0);
   
@@ -43,14 +46,21 @@ int main()
   
   //pthread_join(thread1, NULL);
   //pthread_join(thread2, NULL);
-  
-  sem_post(&wait1);
-  printf("sem_post wait1\n");
-  //sem_post(&wait2);
-  
-  //sem_destroy(&sem_a);
-  //sem_destroy(&wait1);sem_destroy(&wait2);
-  //exit(0);
+  char c;
+  while(1){
+    c = getchar();
+    if (c == '1') {
+      sem_post(&wait1);
+    } else if (c == '2') {
+      sem_post(&wait2);
+    } esle if (c =='3') {
+      sem_post(&sem_a); //Not use yet
+      break;
+    }
+  }
+
+  printf("Completely exit!!\n");
+  exit(0);
 }
 
 
